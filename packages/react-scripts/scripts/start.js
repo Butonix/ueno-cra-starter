@@ -29,8 +29,11 @@ if (process.env.SKIP_PREFLIGHT_CHECK !== 'true') {
 }
 // @remove-on-eject-end
 
+const http = require('http');
 const chalk = require('chalk');
 const webpack = require('webpack');
+const spawn = require('child_process').spawn;
+const detect = require('detect-port-alt');
 const WebpackDevServer = require('webpack-dev-server');
 const clearConsole = require('react-dev-utils/clearConsole');
 const checkRequiredFiles = require('react-dev-utils/checkRequiredFiles');
@@ -73,6 +76,13 @@ if (process.env.HOST) {
   console.log();
 }
 
+const onResponsive = (hostname, port, cb) =>
+  setTimeout(() => {
+    http
+      .get({ hostname, port, path: '/', agent: false }, cb)
+      .on('error', () => onResponsive(hostname, port, cb));
+  }, 1000);
+
 // We require that you explictly set browsers and do not fall back to
 // browserslist defaults.
 const { checkBrowsers } = require('react-dev-utils/browsersHelper');
@@ -82,14 +92,33 @@ checkBrowsers(paths.appPath)
     // run on a different port. `choosePort()` Promise resolves to the next free port.
     return choosePort(HOST, DEFAULT_PORT);
   })
-  .then(port => {
-    if (port == null) {
+  .then(port =>
+    detect(port + 1).then(webpackDevServerPort => {
+      return [webpackDevServerPort, port];
+    })
+  )
+  .then(([port, portServer]) => {
+    if (port == null || portServer == null) {
       // We have not found a port.
       return;
     }
+    // Start server
+    const serverEnv = Object.create(process.env);
+    serverEnv.PORT = portServer;
+    serverEnv.REMOTE_PORT = port;
+    const server = spawn(
+      './node_modules/.bin/node-hot',
+      ['--config', './config/webpack.config.server.dev.js'],
+      { stdio: 'inherit', env: serverEnv }
+    );
+    // Set local port
+    process.env.LOCAL_PORT = portServer;
+    config.output.publicPath = `http://localhost:${port}/`;
+
+    // Begin webpack devserver sequence
     const protocol = process.env.HTTPS === 'true' ? 'https' : 'http';
     const appName = require(paths.appPackageJson).name;
-    const urls = prepareUrls(protocol, HOST, port);
+    const urls = prepareUrls(protocol, HOST, portServer);
     // Create a webpack compiler that is configured with custom messages.
     const compiler = createCompiler(
       webpack,
@@ -116,12 +145,16 @@ checkBrowsers(paths.appPath)
         clearConsole();
       }
       console.log(chalk.cyan('Starting the development server...\n'));
+    });
+
+    onResponsive(HOST, portServer, () => {
       openBrowser(urls.localUrlForBrowser);
     });
 
     ['SIGINT', 'SIGTERM'].forEach(function(sig) {
       process.on(sig, function() {
         devServer.close();
+        server.kill();
         process.exit();
       });
     });
