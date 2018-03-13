@@ -14,8 +14,8 @@ const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const ManifestPlugin = require('webpack-manifest-plugin');
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
-const WatchMissingNodeModulesPlugin = require('react-dev-utils/WatchMissingNodeModulesPlugin');
-const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
+const WatchMissingNodeModulesPlugin = require('@ueno/react-dev-utils/WatchMissingNodeModulesPlugin');
+const ModuleScopePlugin = require('@ueno/react-dev-utils/ModuleScopePlugin');
 const paths = require('./paths');
 
 // Options for PostCSS as we reference these options twice
