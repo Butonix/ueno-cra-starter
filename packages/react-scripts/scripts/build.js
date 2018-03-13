@@ -29,7 +29,6 @@ if (process.env.SKIP_PREFLIGHT_CHECK !== 'true') {
 }
 // @remove-on-eject-end
 
-const path = require('path');
 const chalk = require('chalk');
 const fs = require('fs-extra');
 const webpack = require('webpack');
@@ -51,7 +50,7 @@ const WARN_AFTER_BUNDLE_GZIP_SIZE = 512 * 1024;
 const WARN_AFTER_CHUNK_GZIP_SIZE = 1024 * 1024;
 
 // Warn and crash if required files are missing
-if (!checkRequiredFiles([paths.appHtml, paths.appIndexJs])) {
+if (!checkRequiredFiles([paths.appServerJs, paths.appIndexJs])) {
   process.exit(1);
 }
 
@@ -111,10 +110,6 @@ const compile = webpackConfig =>
         );
         console.log();
 
-        const appPackage = require(paths.appPackageJson);
-        const publicUrl = paths.publicUrl;
-        const publicPath = config.output.publicPath;
-        const buildFolder = path.relative(process.cwd(), paths.appBuild);
         if (isServer) {
           // TODO: Print hosting instructions
           console.log();

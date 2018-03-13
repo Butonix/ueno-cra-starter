@@ -18,6 +18,9 @@ const WatchMissingNodeModulesPlugin = require('@ueno/react-dev-utils/WatchMissin
 const ModuleScopePlugin = require('@ueno/react-dev-utils/ModuleScopePlugin');
 const paths = require('./paths');
 
+// Source maps are resource heavy and can cause out of memory issue for large source files.
+const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false';
+
 // Options for PostCSS as we reference these options twice
 // Adds vendor prefixing based on your specified browser support in
 // package.json
@@ -25,6 +28,7 @@ const postCSSLoaderOptions = {
   // Necessary for external CSS imports to work
   // https://github.com/facebook/create-react-app/issues/2677
   ident: 'postcss',
+  sourceMap: shouldUseSourceMap,
   plugins: () => [
     require('postcss-flexbugs-fixes'),
     autoprefixer({
@@ -125,6 +129,22 @@ module.exports = {
         // match the requirements. When no loader matches it will fall
         // back to the "file" loader at the end of the loader list.
         oneOf: [
+          // SVG Loader
+          {
+            test: /\.jsx.svg$/,
+            use: [
+              {
+                loader: require.resolve('babel-loader'),
+                options: {
+                  // @remove-on-eject-begin
+                  babelrc: false,
+                  // @remove-on-eject-end
+                  presets: [require.resolve('babel-preset-react-app')],
+                },
+              },
+              require.resolve('svg-to-jsx-loader'),
+            ],
+          },
           // "url" loader works like "file" loader except that it embeds assets
           // smaller than specified limit in bytes as data URLs to avoid requests.
           // A missing `test` is equivalent to a match.
@@ -203,39 +223,31 @@ module.exports = {
           // in development "style" loader enables hot editing of CSS.
           // By default we support CSS Modules with the extension .module.css
           {
-            test: /\.css$/,
-            exclude: /\.module\.css$/,
-            use: extractCss.extract([
+            test: /(\.scss|\.sass|\.css)$/,
+            use: [
+              require.resolve('classnames-loader'),
               {
-                loader: require.resolve('css-loader'),
+                loader: require.resolve('css-loader/locals'),
                 options: {
                   importLoaders: 1,
-                },
-              },
-              {
-                loader: require.resolve('postcss-loader'),
-                options: postCSSLoaderOptions,
-              },
-            ]),
-          },
-          // Adds support for CSS Modules (https://github.com/css-modules/css-modules)
-          // using the extension .module.css
-          {
-            test: /\.module\.css$/,
-            use: extractCss.extract([
-              {
-                loader: require.resolve('css-loader'),
-                options: {
-                  importLoaders: 1,
+                  minimize: true,
+                  sourceMap: shouldUseSourceMap,
                   modules: true,
-                  localIdentName: '[path]__[name]___[local]',
+                  localIdentName: '[hash:base64:10]',
                 },
               },
               {
                 loader: require.resolve('postcss-loader'),
                 options: postCSSLoaderOptions,
               },
-            ]),
+              {
+                loader: require.resolve('sass-loader'),
+                options: {
+                  outputStyle: 'expanded',
+                  sourceMap: shouldUseSourceMap,
+                },
+              },
+            ],
           },
           // The GraphQL loader preprocesses GraphQL queries in .graphql files.
           {

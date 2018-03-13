@@ -59,6 +59,7 @@ const postCSSLoaderOptions = {
   // Necessary for external CSS imports to work
   // https://github.com/facebook/create-react-app/issues/2677
   ident: 'postcss',
+  sourceMap: shouldUseSourceMap,
   plugins: () => [
     require('postcss-flexbugs-fixes'),
     autoprefixer({
@@ -214,6 +215,22 @@ module.exports = {
         // match the requirements. When no loader matches it will fall
         // back to the "file" loader at the end of the loader list.
         oneOf: [
+          // SVG Loader
+          {
+            test: /\.jsx.svg$/,
+            use: [
+              {
+                loader: require.resolve('babel-loader'),
+                options: {
+                  // @remove-on-eject-begin
+                  babelrc: false,
+                  // @remove-on-eject-end
+                  presets: [require.resolve('babel-preset-react-app')],
+                },
+              },
+              require.resolve('svg-to-jsx-loader'),
+            ],
+          },
           // "url" loader works just like "file" loader but it also embeds
           // assets smaller than specified size as data URLs to avoid requests.
           {
@@ -293,72 +310,47 @@ module.exports = {
           // tags. If you use code splitting, however, any async bundles will still
           // use the "style" loader inside the async code so CSS from them won't be
           // in the main CSS file.
-          // By default we support CSS Modules with the extension .module.css
           {
-            test: /\.css$/,
-            exclude: /\.module\.css$/,
-            loader: ExtractTextPlugin.extract(
-              Object.assign(
-                {
-                  fallback: {
-                    loader: require.resolve('style-loader'),
-                    options: {
-                      hmr: false,
-                    },
-                  },
-                  use: [
-                    {
-                      loader: require.resolve('css-loader'),
+            test: /(\.scss|\.sass|\.css)$/,
+            use: [
+              require.resolve('classnames-loader'),
+              ...ExtractTextPlugin.extract(
+                Object.assign(
+                  {
+                    fallback: {
+                      loader: require.resolve('style-loader'),
                       options: {
-                        importLoaders: 1,
-                        minimize: true,
-                        sourceMap: shouldUseSourceMap,
+                        hmr: false,
                       },
                     },
-                    {
-                      loader: require.resolve('postcss-loader'),
-                      options: postCSSLoaderOptions,
-                    },
-                  ],
-                },
-                extractTextPluginOptions
-              )
-            ),
-            // Note: this won't work without `new ExtractTextPlugin()` in `plugins`.
-          },
-          // Adds support for CSS Modules (https://github.com/css-modules/css-modules)
-          // using the extension .module.css
-          {
-            test: /\.module\.css$/,
-            loader: ExtractTextPlugin.extract(
-              Object.assign(
-                {
-                  fallback: {
-                    loader: require.resolve('style-loader'),
-                    options: {
-                      hmr: false,
-                    },
-                  },
-                  use: [
-                    {
-                      loader: require.resolve('css-loader'),
-                      options: {
-                        importLoaders: 1,
-                        minimize: true,
-                        sourceMap: shouldUseSourceMap,
-                        modules: true,
-                        localIdentName: '[path]__[name]___[local]',
+                    use: [
+                      {
+                        loader: require.resolve('css-loader'),
+                        options: {
+                          importLoaders: 1,
+                          minimize: true,
+                          sourceMap: shouldUseSourceMap,
+                          modules: true,
+                          localIdentName: '[hash:base64:10]',
+                        },
                       },
-                    },
-                    {
-                      loader: require.resolve('postcss-loader'),
-                      options: postCSSLoaderOptions,
-                    },
-                  ],
-                },
-                extractTextPluginOptions
-              )
-            ),
+                      {
+                        loader: require.resolve('postcss-loader'),
+                        options: postCSSLoaderOptions,
+                      },
+                      {
+                        loader: require.resolve('sass-loader'),
+                        options: {
+                          outputStyle: 'expanded',
+                          sourceMap: shouldUseSourceMap,
+                        },
+                      },
+                    ],
+                  },
+                  extractTextPluginOptions
+                )
+              ),
+            ],
             // Note: this won't work without `new ExtractTextPlugin()` in `plugins`.
           },
           // The GraphQL loader preprocesses GraphQL queries in .graphql files.
