@@ -4,6 +4,7 @@ import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import express from 'express';
 import App from '../App';
+import '../index.css';
 
 // Create express app
 const app = express();
