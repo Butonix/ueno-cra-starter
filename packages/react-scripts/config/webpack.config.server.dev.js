@@ -76,16 +76,6 @@ module.exports = {
     devtoolModuleFilenameTemplate: info =>
       path.resolve(info.absoluteResourcePath).replace(/\\/g, '/'),
   },
-  optimization: {
-    // Automatically split vendor and commons
-    // https://twitter.com/wSokra/status/969633336732905474
-    // splitChunks: {
-    //   chunks: 'all',
-    // },
-    // Keep the runtime chunk seperated to enable long term caching
-    // https://twitter.com/wSokra/status/969679223278505985
-    // runtimeChunk: true,
-  },
   resolve: {
     // This allows you to set a fallback for where Webpack should look for modules.
     // We placed these paths second because we want `node_modules` to "win"
@@ -298,7 +288,11 @@ module.exports = {
     }),
   ],
 
+  // Node target
   target: 'node',
+
+  // Only show errors for server
+  stats: 'errors-only',
 
   // Turn off performance hints during development because we don't do any
   // splitting or minification in interest of speed. These warnings become

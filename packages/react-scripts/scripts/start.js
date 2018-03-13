@@ -29,6 +29,7 @@ if (process.env.SKIP_PREFLIGHT_CHECK !== 'true') {
 }
 // @remove-on-eject-end
 
+const path = require('path');
 const http = require('http');
 const chalk = require('chalk');
 const webpack = require('webpack');
@@ -54,6 +55,11 @@ const isInteractive = process.stdout.isTTY;
 if (!checkRequiredFiles([paths.appHtml, paths.appIndexJs])) {
   process.exit(1);
 }
+
+const devWebpackConfigPath = path.join(
+  paths.ownPath.replace(process.cwd(), '.'),
+  'config/webpack.config.server.dev.js'
+);
 
 // Tools like Cloud9 rely on this.
 const DEFAULT_PORT = parseInt(process.env.PORT, 10) || 3000;
@@ -108,7 +114,7 @@ checkBrowsers(paths.appPath)
     serverEnv.REMOTE_PORT = port;
     const server = spawn(
       './node_modules/.bin/node-hot',
-      ['--config', './config/webpack.config.server.dev.js'],
+      ['--config', devWebpackConfigPath],
       { stdio: 'inherit', env: serverEnv }
     );
     // Set local port
