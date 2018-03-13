@@ -52,7 +52,7 @@ const createDevServerConfig = require('../config/webpackDevServer.config');
 const isInteractive = process.stdout.isTTY;
 
 // Warn and crash if required files are missing
-if (!checkRequiredFiles([paths.appHtml, paths.appIndexJs])) {
+if (!checkRequiredFiles([paths.appIndexJs])) {
   process.exit(1);
 }
 
@@ -119,7 +119,7 @@ checkBrowsers(paths.appPath)
     );
     // Set local port
     process.env.LOCAL_PORT = portServer;
-    config.output.publicPath = `http://localhost:${port}/`;
+    config.output.publicPath = `http://${HOST}:${port}/`;
 
     // Begin webpack devserver sequence
     const protocol = process.env.HTTPS === 'true' ? 'https' : 'http';

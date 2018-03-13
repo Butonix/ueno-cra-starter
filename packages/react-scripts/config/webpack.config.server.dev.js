@@ -222,9 +222,9 @@ module.exports = {
           // using the extension .module.css
           {
             test: /\.module\.css$/,
-            use: [
+            use: extractCss.extract([
               {
-                loader: require.resolve('css-loader/locals'),
+                loader: require.resolve('css-loader'),
                 options: {
                   importLoaders: 1,
                   modules: true,
@@ -235,7 +235,7 @@ module.exports = {
                 loader: require.resolve('postcss-loader'),
                 options: postCSSLoaderOptions,
               },
-            ],
+            ]),
           },
           // The GraphQL loader preprocesses GraphQL queries in .graphql files.
           {
@@ -282,6 +282,9 @@ module.exports = {
     // https://github.com/jmblog/how-to-optimize-momentjs-with-webpack
     // You can remove this if you don't use Moment.js:
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
+    new webpack.DefinePlugin({
+      WEBPACK_MODE: '"development"',
+    }),
     extractCss,
     new ManifestPlugin({
       fileName: 'asset-manifest.json',

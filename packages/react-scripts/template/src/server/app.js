@@ -7,13 +7,34 @@ import App from '../App';
 
 // Create express app
 const app = express();
-const { REMOTE_PORT: port } = process.env;
+const isDev =
+  typeof WEBPACK_MODE !== 'undefined' && WEBPACK_MODE === 'development';
+const { REMOTE_PORT: port, HOST: host = 'localhost' } = process.env;
+const buildDir = isDev
+  ? './node_modules/@ueno/react-scripts/config/build'
+  : './build';
 
-// Serve built content
-app.use('/static', express.static('./dist/static'));
+// Serve static assets
+app.use('/static', express.static(`${buildDir}/static`));
+app.use(express.static('public'));
+
+// Inject webpackDevServer hack
+const webpackDevServerInject = { __html: `window.__devServerPort = ${port};` };
+
+// Get server manifest
+const manifest = (() => {
+  try {
+    return JSON.parse(
+      fs.readFileSync(`${buildDir}/asset-manifest.json`, 'utf8')
+    );
+  } catch (err) {
+    console.error('Failed reading asset-manifest.json');
+  }
+  return {};
+})();
 
 // Serve react app
-app.get('/', (req, res) => {
+app.get('*', (req, res) => {
   // Write doctype to response
   res.write('<!DOCTYPE html>');
 
@@ -22,22 +43,31 @@ app.get('/', (req, res) => {
     <html lang="en">
       <head>
         <meta charSet="utf-8" />
-        <title>App</title>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.__devServerPort = ${port};`,
-          }}
+        <meta
+          name="viewport"
+          content="width=device-width,initial-scale=1,shrink-to-fit=no"
         />
+        <meta name="theme-color" content="#000000" />
+        <title>React App</title>
+        <link rel="stylesheet" href={manifest['main.css']} />
       </head>
       <body>
         <div id="root">
           <App />
         </div>
-        <script src={`http://localhost:${port}/static/js/bundle.js`} />,
-        <script
-          src={`http://localhost:${port}/static/js/vendors~main.chunk.js`}
-        />,
-        <script src={`http://localhost:${port}/static/js/main.chunk.js`} />,
+        {isDev && <script dangerouslySetInnerHTML={webpackDevServerInject} />}
+        {isDev && <script src={`http://${host}:${port}/static/js/bundle.js`} />}
+        {isDev && (
+          <script
+            src={`http://${host}:${port}/static/js/vendors~main.chunk.js`}
+          />
+        )}
+        {isDev && (
+          <script src={`http://${host}:${port}/static/js/main.chunk.js`} />
+        )}
+        {!isDev && <script src={manifest['runtime~main.js']} />}
+        {!isDev && <script src={manifest['vendors~main.js']} />}
+        {!isDev && <script src={manifest['main.js']} />}
       </body>
     </html>
   ).pipe(res);

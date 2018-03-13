@@ -11,12 +11,9 @@
 const autoprefixer = require('autoprefixer');
 const path = require('path');
 const webpack = require('webpack');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const ManifestPlugin = require('webpack-manifest-plugin');
-const InterpolateHtmlPlugin = require('@ueno/react-dev-utils/InterpolateHtmlPlugin');
-const SWPrecacheWebpackPlugin = require('sw-precache-webpack-plugin');
 const eslintFormatter = require('@ueno/react-dev-utils/eslintFormatter');
 const ModuleScopePlugin = require('@ueno/react-dev-utils/ModuleScopePlugin');
 const paths = require('./paths');
@@ -197,6 +194,9 @@ module.exports = {
               // e.g. to enable no-console and no-debugger only in production.
               baseConfig: {
                 extends: [require.resolve('eslint-config-react-app')],
+                rules: {
+                  'jsx-a11y/href-no-hash': false,
+                },
               },
               // @remove-on-eject-begin
               ignore: false,
@@ -388,29 +388,6 @@ module.exports = {
     ],
   },
   plugins: [
-    // Generates an `index.html` file with the <script> injected.
-    new HtmlWebpackPlugin({
-      inject: true,
-      template: paths.appHtml,
-      minify: {
-        removeComments: true,
-        collapseWhitespace: true,
-        removeRedundantAttributes: true,
-        useShortDoctype: true,
-        removeEmptyAttributes: true,
-        removeStyleLinkTypeAttributes: true,
-        keepClosingSlash: true,
-        minifyJS: true,
-        minifyCSS: true,
-        minifyURLs: true,
-      },
-    }),
-    // Makes some environment variables available in index.html.
-    // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
-    // <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
-    // In production, it will be an empty string unless you specify "homepage"
-    // in `package.json`, in which case it will be the pathname of that URL.
-    new InterpolateHtmlPlugin(env.raw),
     // Makes some environment variables available to the JS code, for example:
     // if (process.env.NODE_ENV === 'production') { ... }. See `./env.js`.
     // It is absolutely essential that NODE_ENV was set to production here.
@@ -430,35 +407,6 @@ module.exports = {
     new ManifestPlugin({
       fileName: 'asset-manifest.json',
       publicPath: publicPath,
-    }),
-    // Generate a service worker script that will precache, and keep up to date,
-    // the HTML & assets that are part of the Webpack build.
-    new SWPrecacheWebpackPlugin({
-      // By default, a cache-busting query parameter is appended to requests
-      // used to populate the caches, to ensure the responses are fresh.
-      // If a URL is already hashed by Webpack, then there is no concern
-      // about it being stale, and the cache-busting can be skipped.
-      dontCacheBustUrlsMatching: /\.\w{8}\./,
-      filename: 'service-worker.js',
-      logger(message) {
-        if (message.indexOf('Total precache size is') === 0) {
-          // This message occurs for every build and is a bit too noisy.
-          return;
-        }
-        if (message.indexOf('Skipping static resource') === 0) {
-          // This message obscures real errors so we ignore it.
-          // https://github.com/facebook/create-react-app/issues/2612
-          return;
-        }
-        console.log(message);
-      },
-      minify: true,
-      // Don't precache sourcemaps (they're large) and build asset manifest:
-      staticFileGlobsIgnorePatterns: [/\.map$/, /asset-manifest\.json$/],
-      // `navigateFallback` and `navigateFallbackWhitelist` are disabled by default; see
-      // https://github.com/facebook/create-react-app/blob/master/packages/react-scripts/template/README.md#service-worker-considerations
-      // navigateFallback: publicUrl + '/index.html',
-      // navigateFallbackWhitelist: [/^(?!\/__).*/],
     }),
     // Moment.js is an extremely popular library that bundles large locale files
     // by default due to how Webpack interprets its code. This is a practical

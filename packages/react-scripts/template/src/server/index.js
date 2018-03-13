@@ -1,17 +1,17 @@
 /* eslint-disable no-console */
 import express from 'express';
 import app from './app';
-const { PORT } = process.env;
+
+// Get listening port
+const port = process.env.PORT || 3000;
 
 // Start server
-const server = app.listen(PORT, err => {
+const server = app.listen(port, err => {
   if (err) {
     console.error(err);
     return;
   }
-  console.log(
-    `\n\nStarted server on http://localhost:${PORT} 🦄\nPress Ctrl-C to stop.\n`
-  );
+  console.log('[EXPRESS] Server started!');
 });
 
 // HMR Support
@@ -23,9 +23,10 @@ if (module.hot) {
       .then(module => {
         _app = module.default;
         server.on('request', _app);
+        console.log('[EXPRESS] Restarted');
       })
       .catch(err => {
-        console.log('Failed to hot-reload server!', err);
+        console.log('[EXPRESS] Failed to hot-reload server!', err);
       });
   });
   module.hot.accept();
