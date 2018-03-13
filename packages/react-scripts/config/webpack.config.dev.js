@@ -158,6 +158,9 @@ module.exports = {
               eslintPath: require.resolve('eslint'),
               baseConfig: {
                 extends: [require.resolve('eslint-config-react-app')],
+                rules: {
+                  'jsx-a11y/href-no-hash': false,
+                },
               },
               // @remove-on-eject-begin
               ignore: false,
