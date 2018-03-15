@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import express from 'express';
-import app from './app';
+import app from './server';
 
 // Get listening port
 const port = process.env.PORT || 3000;
@@ -17,9 +17,9 @@ const server = app.listen(port, err => {
 // HMR Support
 if (module.hot) {
   let _app = app;
-  module.hot.accept('./app', () => {
+  module.hot.accept('./server', () => {
     server.removeListener('request', _app);
-    import('./app')
+    import('./server')
       .then(module => {
         _app = module.default;
         server.on('request', _app);

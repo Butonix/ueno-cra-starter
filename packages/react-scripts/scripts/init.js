@@ -145,6 +145,23 @@ module.exports = function(
     }
   }
 
+  try {
+    fs.moveSync(
+      path.join(appPath, 'editorconfig'),
+      path.join(appPath, '.editorconfig'),
+      []
+    );
+  } catch (err) {
+    // Append if there's already a `.gitignore` file there
+    if (err.code === 'EEXIST') {
+      const data = fs.readFileSync(path.join(appPath, 'editorconfig'));
+      fs.appendFileSync(path.join(appPath, '.editorconfig'), data);
+      fs.unlinkSync(path.join(appPath, 'editorconfig'));
+    } else {
+      throw err;
+    }
+  }
+
   let command;
   let args;
 

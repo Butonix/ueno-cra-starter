@@ -1,0 +1,40 @@
+.header {
+  display: block;
+
+  margin: 0 0 15px;
+
+  background-color: #fff;
+
+  &__container {
+    margin: 0 auto;
+
+    padding-left: 15px;
+    padding-right: 15px;
+
+    max-width: 1290px;
+  }
+
+  &__content {
+    display: flex;
+    align-items: center;
+
+    padding: 15px 0;
+
+    border-bottom: 1px solid #ccc;
+  }
+
+  &__logo {
+    &Svg {
+      display: block;
+    }
+  }
+
+  &__navigation {
+    display: flex;
+    margin-left: auto;
+
+    > a {
+        padding-left: 15px;
+    }
+  }
+}

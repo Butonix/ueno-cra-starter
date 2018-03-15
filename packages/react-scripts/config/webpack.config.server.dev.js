@@ -50,7 +50,7 @@ module.exports = {
   mode: 'development',
   // You may want 'eval' instead if you prefer to see the compiled output in DevTools.
   // See the discussion in https://github.com/facebook/create-react-app/issues/343.
-  devtool: 'cheap-module-source-map',
+  // devtool: 'cheap-module-source-map',
   // These are the "entry points" to our application.
   // This means they will be the "root" imports that are included in JS bundle.
   // The first two entry points enable "hot" CSS and auto-refreshes for JS.
@@ -226,27 +226,29 @@ module.exports = {
             test: /(\.scss|\.sass|\.css)$/,
             use: [
               require.resolve('classnames-loader'),
-              {
-                loader: require.resolve('css-loader/locals'),
-                options: {
-                  importLoaders: 1,
-                  minimize: true,
-                  sourceMap: shouldUseSourceMap,
-                  modules: true,
-                  localIdentName: '[hash:base64:10]',
+              ...extractCss.extract([
+                {
+                  loader: require.resolve('css-loader'),
+                  options: {
+                    importLoaders: 1,
+                    minimize: true,
+                    sourceMap: shouldUseSourceMap,
+                    modules: true,
+                    localIdentName: '[name]_[local]_[hash:base64:5]',
+                  },
                 },
-              },
-              {
-                loader: require.resolve('postcss-loader'),
-                options: postCSSLoaderOptions,
-              },
-              {
-                loader: require.resolve('sass-loader'),
-                options: {
-                  outputStyle: 'expanded',
-                  sourceMap: shouldUseSourceMap,
+                {
+                  loader: require.resolve('postcss-loader'),
+                  options: postCSSLoaderOptions,
                 },
-              },
+                {
+                  loader: require.resolve('sass-loader'),
+                  options: {
+                    outputStyle: 'expanded',
+                    sourceMap: shouldUseSourceMap,
+                  },
+                },
+              ]),
             ],
           },
           // The GraphQL loader preprocesses GraphQL queries in .graphql files.
@@ -301,6 +303,7 @@ module.exports = {
     new ManifestPlugin({
       fileName: 'asset-manifest.json',
     }),
+    new webpack.SourceMapDevToolPlugin(),
   ],
 
   // Node target

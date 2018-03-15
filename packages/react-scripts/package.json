@@ -1,6 +1,6 @@
 {
   "name": "@ueno/react-scripts",
-  "version": "0.0.8",
+  "version": "0.1.0",
   "description": "Configuration and scripts for Create React App.",
   "repository": "ueno-llc/create-react-app",
   "license": "MIT",
@@ -15,7 +15,8 @@
     "config",
     "scripts",
     "template",
-    "utils"
+    "utils",
+    "server.js"
   ],
   "bin": {
     "react-scripts": "./bin/react-scripts.js"
@@ -63,9 +64,12 @@
     "postcss-loader": "2.1.1",
     "promise": "8.0.1",
     "raf": "3.4.0",
+    "react-async-bootstrapper": "1.1.2",
+    "react-async-component": "1.0.2",
     "react-helmet": "5.2.0",
     "react-router": "4.2.0",
     "react-router-dom": "4.2.2",
+    "react-tree-walker": "2.2.0",
     "sass-loader": "6.0.7",
     "style-loader": "0.20.2",
     "svg-to-jsx-loader": "2.0.1",
