@@ -89,8 +89,6 @@ module.exports = function(
 
   // Copy over some of the devDependencies
   appPackage.dependencies = appPackage.dependencies || {};
-  // Hard-code @babel/core dependency
-  appPackage.dependencies['@babel/core'] = '7.0.0-beta.41';
 
   // Setup the script rules
   appPackage.scripts = {
@@ -174,7 +172,7 @@ module.exports = function(
     command = 'npm';
     args = ['install', '--save', verbose && '--verbose'].filter(e => e);
   }
-  args.push('react', 'react-dom');
+  args.push('react', 'react-dom', '@babel/core');
 
   // Install additional template dependencies, if present
   const templateDependenciesPath = path.join(
