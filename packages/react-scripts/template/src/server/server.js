@@ -1,6 +1,7 @@
 import express from 'express';
 import { render, staticDir } from '@ueno/react-scripts/server';
-import App from '../routes';
+import Store from '../store';
+import App from '../App';
 
 // Create express app
 const app = express();
@@ -12,6 +13,9 @@ app.use('/static', express.static(staticDir));
 app.use(express.static('public'));
 
 // Serve react app
-app.get('*', render(App));
+app.get('*', (req, res) => {
+  const store = new Store();
+  render(App, store)(req, res);
+});
 
 export default app;

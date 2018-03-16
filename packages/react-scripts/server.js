@@ -7,6 +7,9 @@ const React = require('react');
 const ReactDOMServer = require('react-dom/server');
 const Helmet = require('react-helmet').default;
 const { StaticRouter } = require('react-router-dom');
+const { JobProvider, createJobContext } = require('react-jobs');
+const { Provider } = require('mobx-react');
+const { toJS } = require('mobx');
 const asyncBootstrapper = require('react-async-bootstrapper').default;
 const {
   AsyncComponentProvider,
@@ -41,20 +44,18 @@ const writeWindow = items =>
   Object.entries(items).map(([key, value]) => `window.__${key} = ${value};`)
     .join`\n`;
 
-const render = App => (req, res) => {
+const render = (App, store) => (req, res) => {
+  // Create the job context for our provider, this grants
+  // us the ability to track the resolved jobs to send back to the client.
+  const jobContext = createJobContext();
+
+  // Create the async components context for our provider.
   const asyncComponentsContext = createAsyncContext();
 
   // Get error
   const reactRouterContext = {
     status: 200,
   };
-
-  const globalVariables = writeWindow({
-    devServerPort: port,
-    asyncComponentsRehydrateState: JSON.stringify(
-      asyncComponentsContext.getState()
-    ),
-  });
 
   const scripts = [];
 
@@ -77,14 +78,39 @@ const render = App => (req, res) => {
     AsyncComponentProvider,
     { asyncContext: asyncComponentsContext },
     React.createElement(
-      StaticRouter,
-      { location: req.url, context: reactRouterContext },
-      React.createElement(App, null)
+      JobProvider,
+      { jobContext: jobContext },
+      React.createElement(
+        Provider,
+        Object.assign({}, store),
+        React.createElement(
+          StaticRouter,
+          { location: req.url, context: reactRouterContext },
+          React.createElement(App, null)
+        )
+      )
     )
   );
 
   asyncBootstrapper(app).then(() => {
     const helmet = Helmet.renderStatic();
+
+    const globalVariables = writeWindow({
+      devServerPort: port,
+      mobxStoreState: JSON.stringify(toJS(store)),
+      reactJobState: JSON.stringify(jobContext.getState()),
+      asyncComponentsRehydrateState: JSON.stringify(
+        asyncComponentsContext.getState()
+      ),
+    });
+
+    // Check if the router context contains a redirect, if so we need to set
+    // the specific status and redirect header and end the response.
+    if (reactRouterContext.url) {
+      res.status(302).setHeader('Location', reactRouterContext.url);
+      res.end();
+      return;
+    }
 
     res.writeHead(reactRouterContext.status, {
       'Content-Type': 'text/html; utf-8',

@@ -89,6 +89,12 @@ module.exports = function(
 
   // Copy over some of the devDependencies
   appPackage.dependencies = appPackage.dependencies || {};
+  appPackage.dependencies['@babel/core'] = '7.0.0-beta.42';
+  appPackage.dependencies['express'] = '4.16.3';
+  appPackage.dependencies['react-helmet'] = '5.2.0';
+  appPackage.dependencies['react-jobs'] = '1.0.0';
+  appPackage.dependencies['mobx-react'] = '5.0.0';
+  appPackage.dependencies['mobx'] = '4.1.0';
 
   // Setup the script rules
   appPackage.scripts = {
@@ -249,6 +255,7 @@ module.exports = function(
   console.log('We suggest that you begin by typing:');
   console.log();
   console.log(chalk.cyan('  cd'), cdpath);
+  console.log(`  ${chalk.cyan(`${displayedCommand} install`)}`);
   console.log(`  ${chalk.cyan(`${displayedCommand} start`)}`);
   if (readmeExists) {
     console.log();

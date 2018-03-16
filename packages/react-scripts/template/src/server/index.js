@@ -16,19 +16,24 @@ const server = app.listen(port, err => {
 
 // HMR Support
 if (module.hot) {
-  let _app = app;
+  let newApp = app;
+  // Accept ./server file
   module.hot.accept('./server', () => {
-    server.removeListener('request', _app);
+    // Stop listening to new connections
+    server.removeListener('request', newApp);
+    // Import changed server code
     import('./server')
       .then(module => {
-        _app = module.default;
-        server.on('request', _app);
+        newApp = module.default;
+        // Start listening to requests on the new server
+        server.on('request', newApp);
         console.log('[EXPRESS] Restarted');
       })
-      .catch(err => {
-        console.log('[EXPRESS] Failed to hot-reload server!', err);
-      });
+      .catch(err => console.log('[EXPRESS] Failed to hot-reload server!', err));
   });
+  // Accept this file
   module.hot.accept();
+  // Close server connections when disposing for
+  // incoming new hot reload change.
   module.hot.dispose(server.close);
 }
