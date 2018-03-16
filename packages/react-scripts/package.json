@@ -1,6 +1,6 @@
 {
   "name": "@ueno/react-scripts",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Configuration and scripts for Create React App.",
   "repository": "ueno-llc/create-react-app",
   "license": "MIT",
@@ -16,7 +16,8 @@
     "scripts",
     "template",
     "utils",
-    "server.js"
+    "server.js",
+    "client.js"
   ],
   "bin": {
     "react-scripts": "./bin/react-scripts.js"
