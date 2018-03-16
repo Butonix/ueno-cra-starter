@@ -93,8 +93,6 @@ const render = (App, store) => (req, res) => {
   );
 
   asyncBootstrapper(app).then(() => {
-    const helmet = Helmet.renderStatic();
-
     const globalVariables = writeWindow({
       devServerPort: port,
       mobxStoreState: JSON.stringify(toJS(store)),
@@ -107,13 +105,19 @@ const render = (App, store) => (req, res) => {
     // Add helmet stuff
     ReactDOMServer.renderToStaticMarkup(
       React.createElement(Helmet, {}, [
-        React.createElement('script', {}, globalVariables),
+        React.createElement(
+          'script',
+          { key: 'globalVariables' },
+          globalVariables
+        ),
         React.createElement('link', {
+          key: 'mainStyles',
           rel: 'stylesheet',
           href: manifest['main.css'],
         }),
       ])
     );
+    const helmet = Helmet.renderStatic();
 
     // Check if the router context contains a redirect, if so we need to set
     // the specific status and redirect header and end the response.
