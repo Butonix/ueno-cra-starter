@@ -104,6 +104,17 @@ const render = (App, store) => (req, res) => {
       ),
     });
 
+    // Add helmet stuff
+    ReactDOMServer.renderToStaticMarkup(
+      React.createElement(Helmet, {}, [
+        React.createElement('script', {}, globalVariables),
+        React.createElement('link', {
+          rel: 'stylesheet',
+          href: manifest['main.css'],
+        }),
+      ])
+    );
+
     // Check if the router context contains a redirect, if so we need to set
     // the specific status and redirect header and end the response.
     if (reactRouterContext.url) {
@@ -111,6 +122,13 @@ const render = (App, store) => (req, res) => {
       res.end();
       return;
     }
+
+    const headScripts = React.Children.map(helmet.script.toComponent(), child =>
+      React.cloneElement(
+        child,
+        Object.assign({ nonce: res.locals && res.locals.nonce }, child.props)
+      )
+    );
 
     res.writeHead(reactRouterContext.status, {
       'Content-Type': 'text/html; utf-8',
@@ -121,10 +139,11 @@ const render = (App, store) => (req, res) => {
     ${helmet.title.toString()}
     ${helmet.meta.toString()}
     ${helmet.link.toString()}
-    <link rel="stylesheet" href="${manifest['main.css']}" />
-    <script>${globalVariables}</script>
+    ${helmet.style.toString()}
+    ${ReactDOMServer.renderToStaticMarkup(headScripts)}
   </head>
   <body ${helmet.bodyAttributes.toString()}>
+    ${helmet.noscript.toString()}
     <div id="root">`);
 
     const reactStream = ReactDOMServer.renderToNodeStream(app);
