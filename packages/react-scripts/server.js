@@ -110,11 +110,6 @@ const render = (App, store) => (req, res) => {
           { key: 'globalVariables' },
           globalVariables
         ),
-        React.createElement('link', {
-          key: 'mainStyles',
-          rel: 'stylesheet',
-          href: manifest['main.css'],
-        }),
       ])
     );
     const helmet = Helmet.renderStatic();
@@ -145,6 +140,7 @@ const render = (App, store) => (req, res) => {
     ${helmet.link.toString()}
     ${helmet.style.toString()}
     ${ReactDOMServer.renderToStaticMarkup(headScripts)}
+    <link href="${manifest['main.css']}" rel="stylesheet" />
   </head>
   <body ${helmet.bodyAttributes.toString()}>
     ${helmet.noscript.toString()}

@@ -91,6 +91,8 @@ module.exports = function(
   appPackage.dependencies = appPackage.dependencies || {};
 
   // Add dependencies
+  appPackage.dependencies['@babel/core'] = '7.0.0-beta.42';
+  appPackage.dependencies['@ueno/stylelint-config'] = '1.0.4';
   appPackage.dependencies['express'] = '4.16.3';
   appPackage.dependencies['compression'] = '1.7.2';
   appPackage.dependencies['helmet'] = '3.12.0';
@@ -99,12 +101,6 @@ module.exports = function(
   appPackage.dependencies['react-jobs'] = '1.0.0';
   appPackage.dependencies['mobx-react'] = '5.0.0';
   appPackage.dependencies['mobx'] = '4.1.0';
-
-  // Add devDependencies
-  appPackage.devDependencies = appPackage.devDependencies || {};
-  appPackage.devDependencies['@babel/core'] = '7.0.0-beta.42';
-  appPackage.devDependencies['@ueno/eslint-config'] = '1.2.6';
-  appPackage.devDependencies['@ueno/stylelint-config'] = '1.0.4';
 
   // Setup the script rules
   appPackage.scripts = {
@@ -118,6 +114,9 @@ module.exports = function(
 
   // Set main to built server
   appPackage.main = 'build/server.js';
+
+  // Set webpack defaults
+  appPackage['webpack-defaults'] = 'webpack-defaults';
 
   fs.writeFileSync(
     path.join(appPath, 'package.json'),
