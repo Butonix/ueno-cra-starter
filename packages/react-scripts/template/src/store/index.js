@@ -1,5 +1,9 @@
+import Planets from './Planets';
+
 export default class Store {
-  rehydrate() {
+  planets = new Planets();
+
+  rehydrate(store) {
     return true;
   }
 }

@@ -16,7 +16,7 @@ const cspConfig = {
       // need the following:
       // 'data:',
     ],
-    fontSrc: ["'self'", 'data:'],
+    fontSrc: ["'self'", 'data:', 'fonts.gstatic.com'],
     objectSrc: ["'self'"],
     mediaSrc: ["'self'"],
     manifestSrc: ["'self'"],
@@ -34,6 +34,7 @@ const cspConfig = {
       // Webpack generates JS that loads our CSS, so this is needed:
       "'unsafe-inline'",
       'blob:',
+      'fonts.googleapis.com',
     ],
   },
 };
