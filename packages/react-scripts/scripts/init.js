@@ -213,13 +213,13 @@ module.exports = function(
 
   // Install dependencies
   console.log();
-  console.log('Installing @ueno packages...');
+  process.stdout.write('Installing @ueno packages...');
   const proc = spawn.sync(command, 'install', { stdio: 'inherit' });
   if (proc.status !== 0) {
     console.error(`\`${command} ${args.join(' ')}\` failed`);
     return;
   } else {
-    process.stdout.write(' done!');
+    console.log(' done!');
   }
 
   if (tryGitInit(appPath)) {
