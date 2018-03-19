@@ -146,7 +146,7 @@ module.exports = function(
   }
 
   // Dot Files needed for rename
-  const dotFiles = ['gitignore', 'editorconfig', 'eslint', 'stylelint'];
+  const dotFiles = ['gitignore', 'editorconfig', 'eslintrc', 'stylelintrc'];
 
   dotFiles.forEach(dotFile => {
     // Rename dot file after the fact to prevent npm from renaming it to .npmignore
@@ -159,12 +159,14 @@ module.exports = function(
       );
     } catch (err) {
       // Append if there's already a `.dotFile` there
-      if (err.code === 'EEXIST' && dotFile === 'gitignore') {
-        const data = fs.readFileSync(path.join(appPath, dotFile));
-        fs.appendFileSync(path.join(appPath, `.${dotFile}`), data);
-        fs.unlinkSync(path.join(appPath, dotFile));
-      } else {
-        throw err;
+      if (dotFile === 'gitignore') {
+        if (err.code === 'EEXIST') {
+          const data = fs.readFileSync(path.join(appPath, dotFile));
+          fs.appendFileSync(path.join(appPath, `.${dotFile}`), data);
+          fs.unlinkSync(path.join(appPath, dotFile));
+        } else {
+          throw err;
+        }
       }
     }
   });
