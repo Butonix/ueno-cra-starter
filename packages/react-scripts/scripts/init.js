@@ -101,6 +101,9 @@ module.exports = function(
   appPackage.dependencies['react-jobs'] = '1.0.0';
   appPackage.dependencies['mobx-react'] = '5.0.0';
   appPackage.dependencies['mobx'] = '4.1.0';
+  appPackage.dependencies['axios'] = '0.18.0';
+  appPackage.dependencies['babel-plugin-transform-object-rest-spread'] =
+    '7.0.0-beta.3';
 
   // Setup the script rules
   appPackage.scripts = {
