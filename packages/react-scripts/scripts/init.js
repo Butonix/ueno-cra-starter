@@ -89,7 +89,8 @@ module.exports = function(
 
   // Copy over some of the devDependencies
   appPackage.dependencies = appPackage.dependencies || {};
-  appPackage.dependencies['@babel/core'] = '7.0.0-beta.42';
+
+  // Add dependencies
   appPackage.dependencies['express'] = '4.16.3';
   appPackage.dependencies['compression'] = '1.7.2';
   appPackage.dependencies['helmet'] = '3.12.0';
@@ -98,6 +99,12 @@ module.exports = function(
   appPackage.dependencies['react-jobs'] = '1.0.0';
   appPackage.dependencies['mobx-react'] = '5.0.0';
   appPackage.dependencies['mobx'] = '4.1.0';
+
+  // Add devDependencies
+  appPackage.devDependencies = appPackage.devDependencies || {};
+  appPackage.devDependencies['@babel/core'] = '7.0.0-beta.42';
+  appPackage.devDependencies['@ueno/eslint-config'] = '1.2.6';
+  appPackage.devDependencies['@ueno/stylelint-config'] = '1.0.4';
 
   // Setup the script rules
   appPackage.scripts = {
@@ -108,6 +115,9 @@ module.exports = function(
   };
 
   appPackage.browserslist = defaultBrowsers;
+
+  // Set main to built server
+  appPackage.main = 'build/server.js';
 
   fs.writeFileSync(
     path.join(appPath, 'package.json'),
@@ -135,41 +145,29 @@ module.exports = function(
     return;
   }
 
-  // Rename gitignore after the fact to prevent npm from renaming it to .npmignore
-  // See: https://github.com/npm/npm/issues/1862
-  try {
-    fs.moveSync(
-      path.join(appPath, 'gitignore'),
-      path.join(appPath, '.gitignore'),
-      []
-    );
-  } catch (err) {
-    // Append if there's already a `.gitignore` file there
-    if (err.code === 'EEXIST') {
-      const data = fs.readFileSync(path.join(appPath, 'gitignore'));
-      fs.appendFileSync(path.join(appPath, '.gitignore'), data);
-      fs.unlinkSync(path.join(appPath, 'gitignore'));
-    } else {
-      throw err;
-    }
-  }
+  // Dot Files needed for rename
+  const dotFiles = ['gitignore', 'editorconfig', 'eslint', 'stylelint'];
 
-  try {
-    fs.moveSync(
-      path.join(appPath, 'editorconfig'),
-      path.join(appPath, '.editorconfig'),
-      []
-    );
-  } catch (err) {
-    // Append if there's already a `.gitignore` file there
-    if (err.code === 'EEXIST') {
-      const data = fs.readFileSync(path.join(appPath, 'editorconfig'));
-      fs.appendFileSync(path.join(appPath, '.editorconfig'), data);
-      fs.unlinkSync(path.join(appPath, 'editorconfig'));
-    } else {
-      throw err;
+  dotFiles.forEach(dotFile => {
+    // Rename dot file after the fact to prevent npm from renaming it to .npmignore
+    // See: https://github.com/npm/npm/issues/1862
+    try {
+      fs.moveSync(
+        path.join(appPath, dotFile),
+        path.join(appPath, `.${dotFile}`),
+        []
+      );
+    } catch (err) {
+      // Append if there's already a `.dotFile` there
+      if (err.code === 'EEXIST' && dotFile === 'gitignore') {
+        const data = fs.readFileSync(path.join(appPath, dotFile));
+        fs.appendFileSync(path.join(appPath, `.${dotFile}`), data);
+        fs.unlinkSync(path.join(appPath, dotFile));
+      } else {
+        throw err;
+      }
     }
-  }
+  });
 
   let command;
   let args;
